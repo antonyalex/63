@@ -159,3 +159,16 @@ print_solution([]).
 print_solution([p(Name, Dept, Lang, Project) | Rest]) :-
     format("~w = [~w, ~w, ~w]~n", [Name, Dept, Lang, Project]),
     print_solution(Rest).
+
+%  ---------------------------------------------------------------------------
+%  P1.b  --  count
+%  ---------------------------------------------------------------------------
+
+%! count_solutions(+Active:list(integer), -N:integer) is det.
+%  N is the number of fully filled-in assignments that satisfy exactly the
+%  clues whose numbers appear in Active; every other clue is ignored.
+%  solution/1 enumerates each assignment once, so no deduplication is needed.
+count_solutions(Active, N) :-
+    aggregate_all(count, ( solution(Solution),
+                           satisfies(Active, Solution)
+                         ), N).
