@@ -107,3 +107,19 @@
 ;; make-inserter: the only thing it supplies is the length test.
 (define (insert-if-short x lst n)
   ((make-inserter x (lambda (len) (< len n))) lst))
+
+;; ---------------------------------------------------------------------------
+;; S2.a  --  read three values, print one result
+;; ---------------------------------------------------------------------------
+
+;; print-insert-result : -> void
+;; Reads x, then lst, then n from standard input, and prints the result of
+;; insert-if-short on one line.  let* is what fixes the three reads into that
+;; order; a plain let would not guarantee it.  No prompt and no other text is
+;; printed, and the line ends with a newline.
+(define (print-insert-result)
+  (let* ((x (read))
+         (lst (read))
+         (n (read)))
+    (display (insert-if-short x lst n))
+    (newline)))
