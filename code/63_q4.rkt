@@ -61,3 +61,49 @@
     (if (null? rest)
         (my-reverse acc)
         (step (cdr rest) (cons (f (car rest)) acc)))))
+
+;; ---------------------------------------------------------------------------
+;; S2.c  --  the higher-order inserter
+;; ---------------------------------------------------------------------------
+
+;; make-inserter : atom (number -> boolean) -> ((listof any) -> (listof any))
+;; Returns a function of one list that inserts x at the front of every list,
+;; at every level of nesting, whose length satisfies len-ok?.
+;;
+;; Two mutually recursive helpers do the work:
+;;
+;;   transform  is applied to something known to be a list.  It measures the
+;;              ORIGINAL length first, rebuilds the elements, and only then
+;;              decides whether to put x in front -- so an insertion made
+;;              inside an element can never change the length that was tested.
+;;
+;;   walk       is applied to an element, which may be an atom or a list.  The
+;;              test is (or (pair? item) (null? item)) and not pair? alone,
+;;              because '() is a list that must still be transformed but is
+;;              not a pair.
+;;
+;; Measure: transform only ever recurses, through walk, into an element of its
+;; argument, so the nesting depth strictly decreases and the recursion ends.
+(define (make-inserter x len-ok?)
+  (letrec ((transform
+            (lambda (lst)
+              (let* ((original-length (my-length lst))
+                     (rebuilt (my-map walk lst)))
+                (if (len-ok? original-length)
+                    (cons x rebuilt)
+                    rebuilt))))
+           (walk
+            (lambda (item)
+              (if (or (pair? item) (null? item))
+                  (transform item)
+                  item))))
+    (lambda (lst)
+      (transform lst))))
+
+;; insert-if-short : atom (listof any) number -> (listof any)
+;; S2.b and S2.c.  x inserted at the front of every list, at every level of
+;; nesting, whose original length is less than n.  This is the file's single
+;; definition of insert-if-short, and it is the one written in terms of
+;; make-inserter: the only thing it supplies is the length test.
+(define (insert-if-short x lst n)
+  ((make-inserter x (lambda (len) (< len n))) lst))
