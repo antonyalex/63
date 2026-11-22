@@ -126,6 +126,20 @@ clue(8, Solution) :-
     Lang \== javascript.
 
 %  ---------------------------------------------------------------------------
+%  P1.c  --  repair
+%  ---------------------------------------------------------------------------
+%
+%  Clues 1 to 8 leave three consistent assignments, so the puzzle as given is
+%  under-determined (see P1_REPORT.md).  Clue 9 below is the repair: it names no
+%  friend, referring to them only through attribute values the way clue 5 does,
+%  it is true in exactly one of those three assignments and false in the other
+%  two, so count_solutions([1,2,3,4,5,6,7,8,9], N) gives N = 1.
+
+% CLUE 9: The friend who works in the design department prefers embedded projects.
+clue(9, Solution) :-
+    person(Solution, _Name, design, _Lang, embedded).
+
+%  ---------------------------------------------------------------------------
 %  Applying a set of clues
 %  ---------------------------------------------------------------------------
 
