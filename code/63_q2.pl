@@ -123,3 +123,36 @@ needs_parentheses(left, ParentLevel, op(Op, _, _)) :-
 needs_parentheses(right, ParentLevel, op(Op, _, _)) :-
     precedence(Op, Level),
     Level =< ParentLevel.
+
+%  ---------------------------------------------------------------------------
+%  Equations
+%  ---------------------------------------------------------------------------
+
+%! equation(+Numbers:list(integer), -Equation:string) is nondet.
+%  Equation is the canonical string of one valid equation over Numbers: a split
+%  into a non-empty prefix and a non-empty suffix, an expression over each side,
+%  and the two sides having equal value.  Sharing the single variable Value
+%  between the two expression/3 calls is what states "both sides are equal".
+%
+%  append/3 over a proper list offers finitely many split points and
+%  expression/3 is finite on each side, so this is finite for every input; on
+%  [] and on a one-element list every split leaves one side empty and it simply
+%  fails, as required, without looping or raising.
+equation(Numbers, Equation) :-
+    append(Left, Right, Numbers),
+    Left = [_ | _],
+    Right = [_ | _],
+    expression(Left, LeftTree, Value),
+    expression(Right, RightTree, Value),
+    render(LeftTree, LeftText),
+    render(RightTree, RightText),
+    format(string(Equation), "~w=~w", [LeftText, RightText]).
+
+%! generate_equation(+List:list(integer), ?Equation:string) is semidet.
+%  Equation is one valid equation for List.  Any valid equation is acceptable,
+%  so once/1 commits to the first that matches; because the commit happens with
+%  Equation already in place, calling this with Equation bound still works as a
+%  check.  Fails, without looping or raising, when no valid equation exists,
+%  including for lists of length 0 and 1.
+generate_equation(List, Equation) :-
+    once(equation(List, Equation)).
