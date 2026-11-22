@@ -135,3 +135,27 @@ clue(8, Solution) :-
 %  contributes exactly one success.
 satisfies(Active, Solution) :-
     forall(member(Number, Active), clue(Number, Solution)).
+
+%  ---------------------------------------------------------------------------
+%  P1.a  --  solve
+%  ---------------------------------------------------------------------------
+
+%! main is det.
+%  Prints one assignment satisfying clues 1 to 8, as four lines
+%      Name = [Dept, Lang, Project]
+%  in the fixed order Alex, Ben, Carla, Dana.  The answer is derived by search
+%  over solution/1 and the clue predicates; nothing about it is hard-coded.
+%  once/1 makes main deterministic even though clues 1 to 8 admit more than one
+%  assignment (see count_solutions/2 and P1_REPORT.md).
+main :-
+    once((solution(Solution), satisfies([1, 2, 3, 4, 5, 6, 7, 8], Solution))),
+    print_solution(Solution).
+
+%! print_solution(+Solution:list) is det.
+%  Writes one line per friend, in Solution order.  Base case: the empty list
+%  prints nothing.  Recursive case: print the head, then the tail; the list
+%  shrinks by one element each step.
+print_solution([]).
+print_solution([p(Name, Dept, Lang, Project) | Rest]) :-
+    format("~w = [~w, ~w, ~w]~n", [Name, Dept, Lang, Project]),
+    print_solution(Rest).
