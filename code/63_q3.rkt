@@ -87,3 +87,25 @@
       (postorder-onto (node-left tree)
                       (postorder-onto (node-right tree)
                                       (cons (node-value tree) acc)))))
+
+;; ---------------------------------------------------------------------------
+;; Shape measurements
+;; ---------------------------------------------------------------------------
+
+;; tree-height : tree -> number
+;; The height of the empty tree is 0, and the height of a node is 1 plus the
+;; larger of its two subtree heights, so a single node has height 1.
+(define (tree-height tree)
+  (if (null? tree)
+      0
+      (+ 1 (max (tree-height (node-left tree))
+                (tree-height (node-right tree))))))
+
+;; leaf-count : tree -> number
+;; The number of leaves of tree.  The empty tree has none; a leaf counts once;
+;; any other node contributes the leaves of its two subtrees.
+(define (leaf-count tree)
+  (cond ((null? tree) 0)
+        ((leaf? tree) 1)
+        (else (+ (leaf-count (node-left tree))
+                 (leaf-count (node-right tree))))))
