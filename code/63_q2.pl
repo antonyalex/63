@@ -65,3 +65,61 @@ expression(Numbers, op(Op, LeftTree, RightTree), Value) :-
     expression(Right, RightTree, RightValue),
     operator(Op),
     evaluate(Op, LeftValue, RightValue, Value).
+
+%  ---------------------------------------------------------------------------
+%  Canonical form
+%  ---------------------------------------------------------------------------
+%
+%  The printing rule given in the assignment, which gives every distinct parse
+%  tree a distinct string:
+%
+%    * and / bind tighter than + and -;  operators are left-associative;
+%    a LEFT operand is parenthesised only if its top operator has LOWER
+%    precedence than its parent's;  a RIGHT operand is parenthesised if its top
+%    operator has the SAME OR LOWER precedence than its parent's;  a single
+%    number is never parenthesised.
+%
+%  The right-hand rule is the asymmetric one, and it is what makes 1+2+3 and
+%  1+(2+3) print differently even though they have the same value.
+
+%! precedence(+Op:atom, -Level:integer) is det.
+%  Level is the binding strength of Op: 2 for * and /, 1 for + and -.
+precedence(+, 1).
+precedence(-, 1).
+precedence(*, 2).
+precedence(/, 2).
+
+%! render(+Expression, -Text:string) is det.
+%  Text is the canonical, space-free rendering of Expression.
+%  Base case: a number renders as its decimal digits.
+%  Recursive case: render both operands at this node's precedence and join
+%  them with the operator; the sub-trees are strictly smaller.
+render(num(Number), Text) :-
+    number_string(Number, Text).
+render(op(Op, LeftTree, RightTree), Text) :-
+    precedence(Op, Level),
+    render_operand(left, Level, LeftTree, LeftText),
+    render_operand(right, Level, RightTree, RightText),
+    format(string(Text), "~w~w~w", [LeftText, Op, RightText]).
+
+%! render_operand(+Side:atom, +ParentLevel:integer, +Expression, -Text:string) is det.
+%  Text is Expression rendered, wrapped in parentheses exactly when the rule
+%  above requires it for an operand appearing on Side of a parent whose
+%  precedence is ParentLevel.
+render_operand(Side, ParentLevel, Expression, Text) :-
+    render(Expression, Inner),
+    (   needs_parentheses(Side, ParentLevel, Expression)
+    ->  format(string(Text), "(~w)", [Inner])
+    ;   Text = Inner
+    ).
+
+%! needs_parentheses(+Side:atom, +ParentLevel:integer, +Expression) is semidet.
+%  True when Expression, sitting on Side of a parent of precedence ParentLevel,
+%  must be parenthesised.  There is deliberately no clause for num(_): a single
+%  number is never parenthesised, so this fails for it.
+needs_parentheses(left, ParentLevel, op(Op, _, _)) :-
+    precedence(Op, Level),
+    Level < ParentLevel.
+needs_parentheses(right, ParentLevel, op(Op, _, _)) :-
+    precedence(Op, Level),
+    Level =< ParentLevel.
