@@ -109,3 +109,33 @@
         ((leaf? tree) 1)
         (else (+ (leaf-count (node-left tree))
                  (leaf-count (node-right tree))))))
+
+;; ---------------------------------------------------------------------------
+;; S1.a, S1.b, S1.c  --  the three functions the grader calls
+;;
+;; Each prints with display and ends its output with a newline, and prints
+;; nothing else: no label, no prompt, no trailing space.
+;; ---------------------------------------------------------------------------
+
+;; print-inorder : tree -> void
+;; S1.a.  Prints the inorder list of the values of tree on one line.
+(define (print-inorder tree)
+  (display (inorder-onto tree '()))
+  (newline))
+
+;; print-all-traversals : tree -> void
+;; S1.b.  Prints three lines: the inorder list, then the preorder list, then
+;; the postorder list.
+(define (print-all-traversals tree)
+  (display (inorder-onto tree '()))
+  (newline)
+  (display (preorder-onto tree '()))
+  (newline)
+  (display (postorder-onto tree '()))
+  (newline))
+
+;; print-height-and-leaves : tree -> void
+;; S1.c.  Prints the two-element list (height leaf-count) on one line.
+(define (print-height-and-leaves tree)
+  (display (list (tree-height tree) (leaf-count tree)))
+  (newline))
