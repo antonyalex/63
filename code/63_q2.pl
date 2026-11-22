@@ -156,3 +156,18 @@ equation(Numbers, Equation) :-
 %  including for lists of length 0 and 1.
 generate_equation(List, Equation) :-
     once(equation(List, Equation)).
+
+%! all_equations(+List:list(integer), -Equations:list(string)) is det.
+%  Equations is the list of every valid equation for List, without duplicates
+%  and in the standard order of terms.  sort/2 is what removes the duplicates
+%  that different splits can produce; when there is none, Equations = [].
+all_equations(List, Equations) :-
+    findall(Equation, equation(List, Equation), Found),
+    sort(Found, Equations).
+
+%! count_equations(+List:list(integer), -N:integer) is det.
+%  N is the number of distinct valid equations for List, that is, the length of
+%  the list all_equations/2 gives.
+count_equations(List, N) :-
+    all_equations(List, Equations),
+    length(Equations, N).
