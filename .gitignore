@@ -1,0 +1,6 @@
+# Racket / SWI-Prolog build and editor noise
+compiled/
+*.zo
+*.dep
+.DS_Store
+*~
