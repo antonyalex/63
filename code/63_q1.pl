@@ -68,3 +68,70 @@ solution(Solution) :-
 %  fully filled-in Solution each attribute value identifies exactly one friend.
 person(Solution, Name, Dept, Lang, Project) :-
     member(p(Name, Dept, Lang, Project), Solution).
+
+%  ---------------------------------------------------------------------------
+%  The clues
+%  ---------------------------------------------------------------------------
+%
+%  clue(N, Solution) succeeds exactly when clue number N holds in the fully
+%  filled-in Solution, and fails otherwise.  Each clue is one clause, numbered
+%  as in the assignment, with the English sentence directly above it.  Because
+%  Solution is ground, \== is the honest inequality test here.
+
+% CLUE 1: The friend who prefers the AI project does not work in research and
+%         is not Dana.
+clue(1, Solution) :-
+    person(Solution, Name, Dept, _Lang, 'AI'),
+    Dept \== research,
+    Name \== 'Dana'.
+
+% CLUE 2: Alex does not work in development and does not prefer C++.
+clue(2, Solution) :-
+    person(Solution, 'Alex', Dept, Lang, _Project),
+    Dept \== development,
+    Lang \== 'c++'.
+
+% CLUE 3: The friend working in the testing department likes Python.
+clue(3, Solution) :-
+    person(Solution, _Name, testing, python, _Project).
+
+% CLUE 4: Ben prefers web projects and does not work in testing.
+clue(4, Solution) :-
+    person(Solution, 'Ben', Dept, _Lang, web),
+    Dept \== testing.
+
+% CLUE 5: The friend whose favorite language is Java works in the design
+%         department.
+clue(5, Solution) :-
+    person(Solution, _Name, design, java, _Project).
+
+% CLUE 6: Carla's project preference is not embedded, and her department is not
+%         development.
+clue(6, Solution) :-
+    person(Solution, 'Carla', Dept, _Lang, Project),
+    Project \== embedded,
+    Dept \== development.
+
+% CLUE 7: Dana's favorite language is not Java, and she works in research or
+%         testing.
+clue(7, Solution) :-
+    person(Solution, 'Dana', Dept, Lang, _Project),
+    Lang \== java,
+    memberchk(Dept, [research, testing]).
+
+% CLUE 8: The friend who prefers data projects works in research and does not
+%         use JavaScript.
+clue(8, Solution) :-
+    person(Solution, _Name, research, Lang, data),
+    Lang \== javascript.
+
+%  ---------------------------------------------------------------------------
+%  Applying a set of clues
+%  ---------------------------------------------------------------------------
+
+%! satisfies(+Active:list(integer), +Solution:list) is semidet.
+%  Every clue number in Active holds in Solution.  Semidet by construction:
+%  forall/2 commits, so a clue that can be proved more than one way still
+%  contributes exactly one success.
+satisfies(Active, Solution) :-
+    forall(member(Number, Active), clue(Number, Solution)).
